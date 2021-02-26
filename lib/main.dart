@@ -34,10 +34,8 @@ class _LoginWidgetState extends State<LoginWidget> {
       case 'updateState':
         {
           setState(() {
-            // SdkState sdkState = SdkState.values.first();
-
-            _sdkState = SdkState.values.firstWhere(
-                    (v) => v.toString() == 'SdkState.' + methodCall.arguments
+            var arguments = 'SdkState.${methodCall.arguments}';
+            _sdkState = SdkState.values.firstWhere((v) {return v.toString() == arguments;}
             );
 
             print(_sdkState);
@@ -97,7 +95,7 @@ class _LoginWidgetState extends State<LoginWidget> {
     if (_sdkState == SdkState.LOGGED_OUT) {
       return ElevatedButton(
           onPressed: () { _loginUser(); },
-          child: Text("LOGIN")
+          child: Text("LOGIN AS ALICE")
       );
     } else if (_sdkState == SdkState.LOGGED_IN) {
       return ElevatedButton(
