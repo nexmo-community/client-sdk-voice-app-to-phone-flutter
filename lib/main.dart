@@ -22,7 +22,7 @@ class LoginWidget extends StatefulWidget {
 }
 
 class _LoginWidgetState extends State<LoginWidget> {
-  String _sdkState = "LOGGED_OUT";
+  SdkState _sdkState = SdkState.LOGGED_OUT;
   static const platformMethodChannel = const MethodChannel('com.vonage');
 
   _LoginWidgetState() {
@@ -34,7 +34,13 @@ class _LoginWidgetState extends State<LoginWidget> {
       case 'updateState':
         {
           setState(() {
-            _sdkState = methodCall.arguments;
+            // SdkState sdkState = SdkState.values.first();
+
+            _sdkState = SdkState.values.firstWhere(
+                    (v) => v.toString() == 'SdkState.' + methodCall.arguments
+            );
+
+            print(_sdkState);
           });
         }
         break;
@@ -88,21 +94,21 @@ class _LoginWidgetState extends State<LoginWidget> {
   }
 
   Widget _buildConnectionButtons() {
-    if (_sdkState == "LOGGED_OUT") {
+    if (_sdkState == SdkState.LOGGED_OUT) {
       return ElevatedButton(
           onPressed: () { _loginUser(); },
           child: Text("LOGIN")
       );
-    } else if (_sdkState == "LOGGED_IN") {
+    } else if (_sdkState == SdkState.LOGGED_IN) {
       return ElevatedButton(
           onPressed: () { _makeCall(); },
           child: Text("MAKE PHONE CALL")
       );
-    } else if (_sdkState == "WAIT") {
+    } else if (_sdkState == SdkState.WAIT) {
       return Center(
         child: CircularProgressIndicator(),
       );
-    } else if (_sdkState == "ON_CALL") {
+    } else if (_sdkState == SdkState.ON_CALL) {
       return ElevatedButton(
           onPressed: () { _endCall(); },
           child: Text("END CALL")
@@ -113,4 +119,12 @@ class _LoginWidgetState extends State<LoginWidget> {
       );
     }
   }
+}
+
+enum SdkState {
+  LOGGED_OUT,
+  LOGGED_IN,
+  WAIT,
+  ON_CALL,
+  ERROR
 }

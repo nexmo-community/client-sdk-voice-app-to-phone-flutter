@@ -16,14 +16,6 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
-    enum class SdkState {
-        LOGGED_OUT,
-        LOGGED_IN,
-        WAIT,
-        ON_CALL,
-        ERROR
-    }
-
     private val CHANNEL = "com.vonage"
 
     private lateinit var client: NexmoClient
@@ -79,7 +71,8 @@ class MainActivity : FlutterActivity() {
 
     @SuppressLint("MissingPermission")
     private fun makeCall() {
-        Log.d("AAA",  "makeCall")
+        notifyFlutter(SdkState.WAIT)
+
         // Callee number is ignored because it is specified in NCCO config
         client.call("IGNORED_NUMBER", NexmoCallHandler.SERVER, object : NexmoRequestListener<NexmoCall> {
             override fun onSuccess(call: NexmoCall?) {
@@ -97,7 +90,7 @@ class MainActivity : FlutterActivity() {
         onGoingCall?.hangup(object : NexmoRequestListener<NexmoCall> {
             override fun onSuccess(call: NexmoCall?) {
                 onGoingCall = null
-                notifyFlutter(SdkState.ON_CALL)
+                notifyFlutter(SdkState.LOGGED_IN)
             }
 
             override fun onError(apiError: NexmoApiError) {
@@ -107,10 +100,17 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun notifyFlutter(state: SdkState) {
-        Log.e("asd", "flutterEngine?.dartExecutor?.binaryMessenger ${flutterEngine?.dartExecutor?.binaryMessenger}")
         Handler(Looper.getMainLooper()).post {
             MethodChannel(flutterEngine?.dartExecutor?.binaryMessenger, CHANNEL)
                 .invokeMethod("updateState", state.toString())
         }
     }
+}
+
+enum class SdkState {
+    LOGGED_OUT,
+    LOGGED_IN,
+    WAIT,
+    ON_CALL,
+    ERROR
 }
