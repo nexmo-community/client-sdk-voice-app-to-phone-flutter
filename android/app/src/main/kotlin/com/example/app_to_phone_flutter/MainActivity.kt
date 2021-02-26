@@ -1,26 +1,29 @@
 package com.example.app_to_phone_flutter
 
+import android.annotation.SuppressLint
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.annotation.NonNull
 import com.nexmo.client.NexmoCall
 import com.nexmo.client.NexmoCallHandler
 import com.nexmo.client.NexmoClient
-import com.nexmo.client.NexmoConnectionState
 import com.nexmo.client.request_listener.NexmoApiError
+import com.nexmo.client.request_listener.NexmoConnectionListener.ConnectionStatus
 import com.nexmo.client.request_listener.NexmoRequestListener
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
-class MainActivity: FlutterActivity() {
-    enum class AppState {
+class MainActivity : FlutterActivity() {
+    enum class SdkState {
         LOGGED_OUT,
         LOGGED_IN,
+        WAIT,
         ON_CALL,
         ERROR
     }
-    
+
     private val CHANNEL = "com.vonage"
 
     private lateinit var client: NexmoClient
@@ -38,17 +41,16 @@ class MainActivity: FlutterActivity() {
 
         client.setConnectionListener { connectionStatus, _ ->
             when (connectionStatus) {
-                NexmoConnectionState.CONNECTED -> notifyFlutter(AppState.LOGGED_IN)
-                NexmoConnectionState.DISCONNECTED -> notifyFlutter(AppState.LOGGED_OUT)
-                NexmoConnectionState.DISCONNECTED -> notifyFlutter(AppState.ERROR)
-                NexmoConnectionState.CONNECT_TIMEOUT -> notifyFlutter(AppState.ERROR)
+                ConnectionStatus.CONNECTED -> notifyFlutter(SdkState.LOGGED_IN)
+                ConnectionStatus.DISCONNECTED -> notifyFlutter(SdkState.LOGGED_OUT)
+                ConnectionStatus.CONNECTING -> notifyFlutter(SdkState.WAIT)
+                ConnectionStatus.UNKNOWN -> notifyFlutter(SdkState.ERROR)
             }
         }
     }
 
     private fun addFlutterChannelListener() {
-        MethodChannel(flutterEngine?.dartExecutor?.binaryMessenger, CHANNEL).setMethodCallHandler {
-                call, result ->
+        MethodChannel(flutterEngine?.dartExecutor?.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
 
             when (call.method) {
                 "loginUser" -> {
@@ -75,16 +77,18 @@ class MainActivity: FlutterActivity() {
         client.login(token)
     }
 
+    @SuppressLint("MissingPermission")
     private fun makeCall() {
+        Log.d("AAA",  "makeCall")
         // Callee number is ignored because it is specified in NCCO config
         client.call("IGNORED_NUMBER", NexmoCallHandler.SERVER, object : NexmoRequestListener<NexmoCall> {
             override fun onSuccess(call: NexmoCall?) {
                 onGoingCall = call
-                notifyFlutter(AppState.ON_CALL)
+                notifyFlutter(SdkState.ON_CALL)
             }
 
             override fun onError(apiError: NexmoApiError) {
-                notifyFlutter(AppState.ERROR)
+                notifyFlutter(SdkState.ERROR)
             }
         })
     }
@@ -93,20 +97,20 @@ class MainActivity: FlutterActivity() {
         onGoingCall?.hangup(object : NexmoRequestListener<NexmoCall> {
             override fun onSuccess(call: NexmoCall?) {
                 onGoingCall = null
-                notifyFlutter(AppState.LOGGED_IN)
+                notifyFlutter(SdkState.ON_CALL)
             }
 
             override fun onError(apiError: NexmoApiError) {
-                notifyFlutter(AppState.ERROR)
+                notifyFlutter(SdkState.ERROR)
             }
         })
     }
 
-    private fun notifyFlutter(state: AppState) {
+    private fun notifyFlutter(state: SdkState) {
+        Log.e("asd", "flutterEngine?.dartExecutor?.binaryMessenger ${flutterEngine?.dartExecutor?.binaryMessenger}")
         Handler(Looper.getMainLooper()).post {
-            MethodChannel(flutterEngine?.dartExecutor?.binaryMessenger, CHANNEL).invokeMethod("updateState", state
-                .toString())
+            MethodChannel(flutterEngine?.dartExecutor?.binaryMessenger, CHANNEL)
+                .invokeMethod("updateState", state.toString())
         }
     }
 }
-
