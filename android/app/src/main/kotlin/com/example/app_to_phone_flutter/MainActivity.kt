@@ -6,8 +6,12 @@ import android.os.Looper
 import android.util.Log
 import androidx.annotation.NonNull
 import com.nexmo.client.NexmoCall
+import com.nexmo.client.NexmoCallEventListener
 import com.nexmo.client.NexmoCallHandler
+import com.nexmo.client.NexmoCallMember
+import com.nexmo.client.NexmoCallMemberStatus
 import com.nexmo.client.NexmoClient
+import com.nexmo.client.NexmoMediaActionState
 import com.nexmo.client.request_listener.NexmoApiError
 import com.nexmo.client.request_listener.NexmoConnectionListener.ConnectionStatus
 import com.nexmo.client.request_listener.NexmoRequestListener
@@ -17,7 +21,24 @@ import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
     private lateinit var client: NexmoClient
-    var onGoingCall: NexmoCall? = null
+    private var onGoingCall: NexmoCall? = null
+
+    private val callEventListener = object : NexmoCallEventListener {
+        override fun onMemberStatusUpdated(nexmoCallStatus: NexmoCallMemberStatus, callMember: NexmoCallMember) {
+            Log.d("AAA", nexmoCallStatus.toString())
+
+            if (nexmoCallStatus == NexmoCallMemberStatus.COMPLETED || nexmoCallStatus == NexmoCallMemberStatus.CANCELLED) {
+                onGoingCall = null
+                notifyFlutter(SdkState.LOGGED_IN)
+            }
+        }
+
+        override fun onMuteChanged(nexmoMediaActionState: NexmoMediaActionState, callMember: NexmoCallMember) {}
+
+        override fun onEarmuffChanged(nexmoMediaActionState: NexmoMediaActionState, callMember: NexmoCallMember) {}
+
+        override fun onDTMF(dtmf: String, callMember: NexmoCallMember) {}
+    }
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -75,6 +96,7 @@ class MainActivity : FlutterActivity() {
         client.call("IGNORED_NUMBER", NexmoCallHandler.SERVER, object : NexmoRequestListener<NexmoCall> {
             override fun onSuccess(call: NexmoCall?) {
                 onGoingCall = call
+                onGoingCall?.addCallEventListener(callEventListener)
                 notifyFlutter(SdkState.ON_CALL)
             }
 
@@ -85,8 +107,11 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun endCall() {
+        notifyFlutter(SdkState.WAIT)
+
         onGoingCall?.hangup(object : NexmoRequestListener<NexmoCall> {
             override fun onSuccess(call: NexmoCall?) {
+                onGoingCall?.removeCallEventListener(callEventListener)
                 onGoingCall = null
                 notifyFlutter(SdkState.LOGGED_IN)
             }
