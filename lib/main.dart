@@ -10,28 +10,28 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      home: LoginWidget(title: 'app-to-phone-flutter'),
+      home: CallWidget(title: 'client-sdk-voice-app-to-phone-flutter'),
     );
   }
 }
 
-class LoginWidget extends StatefulWidget {
-  LoginWidget({Key key, this.title}) : super(key: key);
+class CallWidget extends StatefulWidget {
+  CallWidget({Key key, this.title}) : super(key: key);
   final String title;
 
   @override
-  _LoginWidgetState createState() => _LoginWidgetState();
+  _CallWidgetState createState() => _CallWidgetState();
 }
 
-class _LoginWidgetState extends State<LoginWidget> {
+class _CallWidgetState extends State<CallWidget> {
   SdkState _sdkState = SdkState.LOGGED_OUT;
   static const platformMethodChannel = const MethodChannel('com.vonage');
 
-  _LoginWidgetState() {
-    platformMethodChannel.setMethodCallHandler(myUtilsHandler);
+  _CallWidgetState() {
+    platformMethodChannel.setMethodCallHandler(methodCallHandler);
   }
 
-  Future<dynamic> myUtilsHandler(MethodCall methodCall) async {
+  Future<dynamic> methodCallHandler(MethodCall methodCall) async {
     switch (methodCall.method) {
       case 'updateState':
         {
@@ -39,8 +39,6 @@ class _LoginWidgetState extends State<LoginWidget> {
             var arguments = 'SdkState.${methodCall.arguments}';
             _sdkState = SdkState.values.firstWhere((v) {return v.toString() == arguments;}
             );
-
-            print(_sdkState);
           });
         }
         break;
@@ -50,7 +48,7 @@ class _LoginWidgetState extends State<LoginWidget> {
   }
 
   Future<void> _loginUser() async {
-    String token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2MTQ2MDYyNzcsImp0aSI6IjQzZGZlZmYwLTdhOTQtMTFlYi04NzkzLWZkYzQwM2RiOGExNiIsImV4cCI6MTYxNDY5MjY3NywiYWNsIjp7InBhdGhzIjp7Ii8qL3VzZXJzLyoqIjp7fSwiLyovY29udmVyc2F0aW9ucy8qKiI6e30sIi8qL3Nlc3Npb25zLyoqIjp7fSwiLyovZGV2aWNlcy8qKiI6e30sIi8qL2ltYWdlLyoqIjp7fSwiLyovbWVkaWEvKioiOnt9LCIvKi9hcHBsaWNhdGlvbnMvKioiOnt9LCIvKi9wdXNoLyoqIjp7fSwiLyova25vY2tpbmcvKioiOnt9LCIvKi9sZWdzLyoqIjp7fX19LCJzdWIiOiJBbGljZSIsImFwcGxpY2F0aW9uX2lkIjoiMTczYjg5N2EtNjlkMi00NjMyLTg4NjAtZTk2M2M2ZTkyNmY2In0.XXQNJEQYg4Aco7W9QVnKB87E6ChKO-_lgEHexNHq3ty5NaRAHTTkHviI9xfHk7Eo1J7HPLGRq53f_z6OsF8tdkp7K1RIH50pxmJ7Qvf4eVfgD7za0xdVYN8UynSM3hWL6v3Q9W811sYHeYRSofURPukBcnrmypwP8FLq7ALazC4Km1aJMW6DPlP03HCv5HRBd5H1v3haR3G8GvlwNJ0mQRKAJi7fQfqAmvOPVrEGJ2XBv8gZ443Ypdl2J2Osh5FtoXizDv08dNR39G2PzbtF9TGV8Ehq0WX9fvu1sQ4mBHI6fPNEMmxPQPQqncAW-FMBzEPDvZfMOo5OPNcbhJS2tg";
+    String token = "ALICE_TOKEN";
 
     try {
       await platformMethodChannel
@@ -94,27 +92,27 @@ class _LoginWidgetState extends State<LoginWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             SizedBox(height: 64),
-            _buildConnectionButtons()
+            _updateView()
           ],
         ),
       ),
     );
   }
 
-  Widget _buildConnectionButtons() {
+  Widget _updateView() {
     if (_sdkState == SdkState.LOGGED_OUT) {
       return ElevatedButton(
           onPressed: () { _loginUser(); },
           child: Text("LOGIN AS ALICE")
       );
+    } else if (_sdkState == SdkState.WAIT) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
     } else if (_sdkState == SdkState.LOGGED_IN) {
       return ElevatedButton(
           onPressed: () { _makeCall(); },
           child: Text("MAKE PHONE CALL")
-      );
-    } else if (_sdkState == SdkState.WAIT) {
-      return Center(
-        child: CircularProgressIndicator(),
       );
     } else if (_sdkState == SdkState.ON_CALL) {
       return ElevatedButton(

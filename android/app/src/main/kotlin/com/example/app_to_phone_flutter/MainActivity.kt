@@ -16,8 +16,6 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
-    private val CHANNEL = "com.vonage"
-
     private lateinit var client: NexmoClient
     var onGoingCall: NexmoCall? = null
 
@@ -42,7 +40,7 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun addFlutterChannelListener() {
-        MethodChannel(flutterEngine?.dartExecutor?.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
+        MethodChannel(flutterEngine?.dartExecutor?.binaryMessenger, "com.vonage").setMethodCallHandler { call, result ->
 
             when (call.method) {
                 "loginUser" -> {
