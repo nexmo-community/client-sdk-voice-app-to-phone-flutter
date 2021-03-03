@@ -99,7 +99,7 @@ class MainActivity : FlutterActivity() {
 
     private fun notifyFlutter(state: SdkState) {
         Handler(Looper.getMainLooper()).post {
-            MethodChannel(flutterEngine?.dartExecutor?.binaryMessenger, CHANNEL)
+            MethodChannel(flutterEngine?.dartExecutor?.binaryMessenger, "com.vonage")
                 .invokeMethod("updateState", state.toString())
         }
     }
