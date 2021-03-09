@@ -62,7 +62,7 @@ class _CallWidgetState extends State<CallWidget> {
     try {
       await requestPermissions();
 
-      await platformMethodChannel
+      await platformMethodChannel.invokeMethod('makeCall');
           .invokeMethod('makeCall');
     } on PlatformException catch (e) {
       print(e);

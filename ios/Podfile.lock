@@ -1,0 +1,29 @@
+PODS:
+  - Flutter (1.0.0)
+  - NexmoClient (2.5.0)
+  - "permission_handler (5.1.0+2)":
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - NexmoClient
+  - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
+
+SPEC REPOS:
+  trunk:
+    - NexmoClient
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  permission_handler:
+    :path: ".symlinks/plugins/permission_handler/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  NexmoClient: 3fc71250a697097fa69780af8a642bf636adf597
+  permission_handler: ccb20a9fad0ee9b1314a52b70b76b473c5f8dab0
+
+PODFILE CHECKSUM: a0af0232db744bf07f639092865bc86ad1ea0c0e
+
+COCOAPODS: 1.10.1
