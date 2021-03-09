@@ -24,18 +24,16 @@ class MainActivity : FlutterActivity() {
     private var onGoingCall: NexmoCall? = null
 
     private val callEventListener = object : NexmoCallEventListener {
-        override fun onMemberStatusUpdated(nexmoCallStatus: NexmoCallMemberStatus, callMember: NexmoCallMember) {
-            Log.d("AAA", nexmoCallStatus.toString())
-
-            if (nexmoCallStatus == NexmoCallMemberStatus.COMPLETED || nexmoCallStatus == NexmoCallMemberStatus.CANCELLED) {
+        override fun onMemberStatusUpdated(callMemberStatus: NexmoCallMemberStatus, callMember: NexmoCallMember) {
+            if (callMemberStatus == NexmoCallMemberStatus.COMPLETED || callMemberStatus == NexmoCallMemberStatus.CANCELLED) {
                 onGoingCall = null
                 notifyFlutter(SdkState.LOGGED_IN)
             }
         }
 
-        override fun onMuteChanged(nexmoMediaActionState: NexmoMediaActionState, callMember: NexmoCallMember) {}
+        override fun onMuteChanged(mediaActionState: NexmoMediaActionState, callMember: NexmoCallMember) {}
 
-        override fun onEarmuffChanged(nexmoMediaActionState: NexmoMediaActionState, callMember: NexmoCallMember) {}
+        override fun onEarmuffChanged(mediaActionState: NexmoMediaActionState, callMember: NexmoCallMember) {}
 
         override fun onDTMF(dtmf: String, callMember: NexmoCallMember) {}
     }
@@ -66,7 +64,7 @@ class MainActivity : FlutterActivity() {
             when (call.method) {
                 "loginUser" -> {
                     val token = requireNotNull(call.argument<String>("token"))
-                    login(token)
+                    loginUser(token)
                     result.success("")
                 }
                 "makeCall" -> {
@@ -84,7 +82,7 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    private fun login(token: String) {
+    private fun loginUser(token: String) {
         client.login(token)
     }
 
