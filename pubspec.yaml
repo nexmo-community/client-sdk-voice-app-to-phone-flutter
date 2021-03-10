@@ -1,5 +1,5 @@
 name: app_to_phone_flutter
-description: A new Flutter application.
+description: A new Flutter project.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
@@ -23,13 +23,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  
+  permission_handler: ^6.0.1+1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.0
-  english_words: ^3.1.5
-  permission_handler: ^6.0.1+1
+  cupertino_icons: ^1.0.2
 
 dev_dependencies:
   flutter_test:
