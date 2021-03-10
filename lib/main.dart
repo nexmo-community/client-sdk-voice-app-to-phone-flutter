@@ -69,9 +69,7 @@ class _CallWidgetState extends State<CallWidget> {
   }
 
   Future<void> requestPermissions() async {
-    Map<Permission, PermissionStatus> statuses = await [
-      Permission.microphone
-    ].request();
+    await [ Permission.microphone] .request();
   }
 
   Future<void> _endCall() async {
