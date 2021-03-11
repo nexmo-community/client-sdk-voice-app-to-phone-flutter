@@ -10,7 +10,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      home: CallWidget(title: 'client-sdk-voice-app-to-phone-flutter'),
+      home: CallWidget(title: 'app-to-phone-flutter'),
     );
   }
 }
