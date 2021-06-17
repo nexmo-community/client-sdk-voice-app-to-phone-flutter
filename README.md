@@ -1,6 +1,6 @@
 # client-sdk-voice-app-to-phone-flutter
 
-This repository is part of Make app-to-phone call using Flutter blogposts.
+This repository is part of Make app-to-phone call using Flutter blogposts ([Android](https://learn.vonage.com/blog/2021/04/01/make-app-to-phone-call-using-android-and-flutter/), [iOS](https://learn.vonage.com/blog/2021/04/01/make-app-to-phone-call-using-ios-and-flutter/)).
 
 ## Setup flutter SDK
 
